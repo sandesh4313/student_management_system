@@ -21,7 +21,9 @@ This is a simple web application built using Java 16, Spring Boot, Spring MVC, T
 ## Getting Started
 
 1. **Clone the repository:**
+   
  git clone https://github.com/yourusername/student-management-system.git
+ 
 2.Database Configuration
 spring.datasource.url=jdbc:mysql://localhost:3306/student_management
 spring.datasource.username=your_username
@@ -37,6 +39,7 @@ The application should be running at http://localhost:8080. Open this URL in you
 
 
 Features
+
 View a list of all students
 Add a new student
 Update student information
