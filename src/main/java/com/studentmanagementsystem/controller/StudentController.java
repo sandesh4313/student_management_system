@@ -1,59 +1,63 @@
 package com.studentmanagementsystem.controller;
 
-import com.studentmanagementsystem.entity.Student;
-import com.studentmanagementsystem.repository.StudentRepository;
+import com.studentmanagementsystem.dto.StudentDto;
 import com.studentmanagementsystem.service.StudentService;
-import jakarta.persistence.GeneratedValue;
+import com.studentmanagementsystem.exception.StudentNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.studentmanagementsystem.entity.Student;
+import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/api/students")
 public class StudentController {
+
+    private final StudentService studentService;
+
     @Autowired
-    private StudentService studentService;
-
-    @GetMapping("/student")
-    public String getAllStudent(Model model) {
-        model.addAttribute("students", studentService.getAllStudent());
-        return "students";
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
     }
 
-    @GetMapping("/student/new")
-    public String createStudentForm(Model model, Student student) {
-        model.addAttribute("student", student);
-        return "create_student";
+    // Get all students
+    @GetMapping
+    public List<Student> getAllStudents() {
+        return studentService.getAllStudent();
     }
 
-    @PostMapping("/student")
-    public String saveStudent(@ModelAttribute("student") Student student) {
-        studentService.saveStudent(student);
-        return "redirect:/student";
+    // Get a student by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
+        try {
+            Student student = studentService.getStudentById(id);
+            return ResponseEntity.ok(student);
+        } catch (StudentNotFoundException ex) {
+            // If the student is not found, return a 404 NOT FOUND response
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    // Save a new student
+    @PostMapping
+    public ResponseEntity<Student> createStudent(@RequestBody StudentDto student) {
+        Student savedStudent = studentService.saveStudent(student);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedStudent);
+    }
+
+    // Update an existing student
+    @PutMapping("/{id}")
+    public ResponseEntity<Student> updateStudent(@PathVariable Long id, @RequestBody Student student) {
+        student.setId(id); // Ensure we are updating the right student with the correct ID
+        try {
+            Student updatedStudent = studentService.updateStudent(student);
+            return ResponseEntity.ok(updatedStudent);
+        } catch (StudentNotFoundException ex) {
+            // If the student is not found, return a 404 NOT FOUND response
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
     }
 
 
-    @GetMapping("/students/edit/{id}")
-    public String updateStudentForm(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("student", studentService.getStudentById(id));
-        return "edit_student";
-    }
-
-
-    @PostMapping("/student/{id}")
-    public String updateStudent(@PathVariable Long id, @ModelAttribute("student") Student student, Model model) {
-        //get student from database by id
-        Student existingStudent = studentService.getStudentById(id);
-        existingStudent.setId(id);
-        existingStudent.setFirstName(student.getFirstName());
-        existingStudent.setLastName(student.getLastName());
-        existingStudent.setEmail(student.getEmail());
-
-
-        //save updated student object
-        studentService.updateStudent(existingStudent);
-        return "redirect:/student";
-
-
-    }
-}

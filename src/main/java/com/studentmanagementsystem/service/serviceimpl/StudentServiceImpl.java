@@ -1,5 +1,6 @@
 package com.studentmanagementsystem.service.serviceimpl;
 
+import com.studentmanagementsystem.dto.StudentDto;
 import com.studentmanagementsystem.entity.Student;
 import com.studentmanagementsystem.repository.StudentRepository;
 import com.studentmanagementsystem.service.StudentService;
@@ -17,10 +18,7 @@ public class StudentServiceImpl implements StudentService {
         return studentRepository.findAll();
     }
 
-    @Override
-    public Student saveStudent(Student student) {
-        return studentRepository.save(student);
-    }
+
 
     @Override
     public Student getStudentById(Long id) {
@@ -29,6 +27,17 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student updateStudent(Student student) {
+        return studentRepository.save(student);
+    }
+    public Student saveStudent(StudentDto studentDto) {
+        Student student = new Student();
+        student.setId(null);
+        student.setFirstName(studentDto.getFirstName());
+        student.setLastName(studentDto.getLastName());
+        student.setEmail(studentDto.getEmail());
+
+
+
         return studentRepository.save(student);
     }
 }
